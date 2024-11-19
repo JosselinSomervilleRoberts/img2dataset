@@ -1,29 +1,32 @@
 """Img2dataset"""
 
-from typing import List, Optional
-import fire
+# noqa: disable
 import logging
-from .logger import LoggerProcess
-from .resizer import Resizer
+import os
+import signal
+import sys
+from typing import List, Optional
+
+import fire
+import fsspec
+
 from .blurrer import BoundingBoxBlurrer
-from .writer import (
-    WebDatasetSampleWriter,
-    FilesSampleWriter,
-    ParquetSampleWriter,
-    TFRecordSampleWriter,
-    DummySampleWriter,
-)
-from .reader import Reader
-from .downloader import Downloader
 from .distributor import (
     multiprocessing_distributor,
     pyspark_distributor,
     ray_distributor,
 )
-import fsspec
-import sys
-import signal
-import os
+from .downloader import Downloader
+from .logger import LoggerProcess
+from .reader import Reader
+from .resizer import Resizer
+from .writer import (
+    DummySampleWriter,
+    FilesSampleWriter,
+    ParquetSampleWriter,
+    TFRecordSampleWriter,
+    WebDatasetSampleWriter,
+)
 
 logging.getLogger("exifread").setLevel(level=logging.CRITICAL)
 
@@ -108,7 +111,13 @@ def download(
     max_shard_retry: int = 1,
     user_agent_token: Optional[str] = None,
     disallowed_header_directives: Optional[List[str]] = None,
+    use_public_dns: bool = False,
+    dns_cache_host: str = "localhost",
+    dns_num_retries: int = 0,
+    dns_cache_type: str = "shared_lru",
+    dns_cache_size: int = 10_000_000,
 ):
+    print("Using josselin as the author")
     """Download is the main entry point of img2dataset, it uses multiple processes and download multiple files"""
     if disallowed_header_directives is None:
         disallowed_header_directives = ["noai", "noimageai", "noindex", "noimageindex"]
@@ -124,10 +133,21 @@ def download(
             return os.path.abspath(p)
         return path
 
+    if use_public_dns:
+        if distributor != "multiprocessing":
+            raise ValueError(
+                "Public DNS can only be used with multiprocessing distributor"
+            )
+
     output_folder = make_path_absolute(output_folder)
     url_list = make_path_absolute(url_list)
 
-    logger_process = LoggerProcess(output_folder, enable_wandb, wandb_project, config_parameters)
+    logger_process = LoggerProcess(
+        output_folder,
+        enable_wandb,
+        wandb_project,
+        config_parameters,
+    )
 
     tmp_path = output_folder + "/_tmp"
     fs, tmp_dir = fsspec.core.url_to_fs(tmp_path)
@@ -154,13 +174,19 @@ def download(
         done_shards = set()
     else:
         if incremental_mode == "incremental":
-            done_shards = set(int(x.split("/")[-1].split("_")[0]) for x in fs.glob(output_path + "/*.json"))
+            done_shards = set(
+                int(x.split("/")[-1].split("_")[0])
+                for x in fs.glob(output_path + "/*.json")
+            )
         elif incremental_mode == "overwrite":
             fs.rm(output_path, recursive=True)
             fs.mkdir(output_path)
             done_shards = set()
         elif incremental_mode == "extend":
-            existing_shards = [int(x.split("/")[-1].split("_")[0]) for x in fs.glob(output_path + "/*.json")]
+            existing_shards = [
+                int(x.split("/")[-1].split("_")[0])
+                for x in fs.glob(output_path + "/*.json")
+            ]
             start_shard_id = max(existing_shards, default=-1) + 1
             done_shards = set()
         else:
@@ -247,6 +273,11 @@ def download(
         user_agent_token=user_agent_token,
         disallowed_header_directives=disallowed_header_directives,
         blurring_bbox_col=bbox_col,
+        use_public_dns=use_public_dns,
+        dns_cache_host=dns_cache_host,
+        dns_num_retries=dns_num_retries,
+        dns_cache_type=dns_cache_type,
+        dns_cache_size=dns_cache_size,
     )
 
     print("Starting the downloading of this file")
