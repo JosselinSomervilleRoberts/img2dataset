@@ -10,9 +10,14 @@ sudo apt install -y wget gnupg2 vim bind9
 
 echo "Step 2: Configure Knot Resolver..."
 # Download and install the Knot Resolver repository
-wget https://secure.nic.cz/files/knot-resolver/knot-resolver-release.deb
-sudo dpkg -i knot-resolver-release.deb
+echo "Configuring Knot Resolver repository..."
+# Fetch and import the updated GPG key
+wget -qO - https://download.opensuse.org/repositories/home:/CZ-NIC:/knot-resolver-latest/xUbuntu_22.04/Release.key | sudo gpg --dearmor -o /usr/share/keyrings/knot-resolver-archive-keyring.gpg
+# Add the Knot Resolver APT repository with the correct signed-by attribute
+echo "deb [signed-by=/usr/share/keyrings/knot-resolver-archive-keyring.gpg] http://download.opensuse.org/repositories/home:/CZ-NIC:/knot-resolver-latest/xUbuntu_22.04 ./" | sudo tee /etc/apt/sources.list.d/knot-resolver.list
+# Update APT repository list
 sudo apt update
+echo "Installing Knot Resolver..."
 sudo apt install -y knot-resolver
 
 # Start and enable Knot Resolver services
