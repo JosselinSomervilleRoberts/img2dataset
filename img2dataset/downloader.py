@@ -52,15 +52,11 @@ def is_disallowed(headers, user_agent_token, disallowed_header_directives):
 
 
 def parse_dns_error(error: str) -> str:
-    if error.startswith("The DNS query name does not exist"):
+    if "The DNS query name does not exist" in error:
         return "The DNS query name does not exist."  # We remove the domain name to better aggregate the errors
-    elif error.startswith(
-        "The DNS response does not contain an answer to the question"
-    ):
+    elif "The DNS response does not contain an answer to the question" in error:
         return "The DNS response does not contain an answer to the question."  # We remove the domain name to better aggregate the errors
-    elif error.startswith(
-        "All nameservers failed to answer the query data.whicdn.com. IN A"
-    ):
+    elif "All nameservers failed to answer the query data.whicdn.com. IN A" in error:
         return "All nameservers failed to answer the query data.whicdn.com. IN A."
     else:
         return error
@@ -380,7 +376,7 @@ class Downloader:
         )
         oom_sample_per_shard = math.ceil(math.log10(self.number_sample_per_shard))
         with ThreadPool(self.thread_count) as thread_pool:
-            if self.resolver is None:
+            if self.resolver is None and self.use_public_dns:
                 self._setup_dns_resolver()
             for key, img_stream, error_message in thread_pool.imap_unordered(
                 lambda x: download_image_with_retry(
