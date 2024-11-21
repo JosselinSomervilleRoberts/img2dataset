@@ -123,12 +123,16 @@ def download_image(
             if ip:
                 url = url.replace(domain, ip)
 
-        # Prepare the request with the original domain in the "Host" header
-        request = urllib.request.Request(
-            original_url,
-            data=None,
-            headers={"User-Agent": user_agent_string, "Host": domain},
-        )
+            # Prepare the request with the original domain in the "Host" header
+            request = urllib.request.Request(
+                original_url,
+                data=None,
+                headers={"User-Agent": user_agent_string, "Host": domain},
+            )
+        else:
+            request = urllib.request.Request(
+                url, data=None, headers={"User-Agent": user_agent_string}
+            )
 
         # Open the URL and read the content
         with urllib.request.urlopen(request, timeout=timeout) as r:
