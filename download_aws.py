@@ -9,7 +9,6 @@ import tqdm
 from cloudpathlib import S3Client, S3Path
 
 import img2dataset
-import img2dataset
 
 
 def download_images(
@@ -86,8 +85,8 @@ def download_images(
     else:
         output_path = Path(output_dir)
 
-    if not resume:
-        assert not output_path.exists(), f"{output_path} already exists"
+    # if not resume:
+    #     assert not output_path.exists(), f"{output_path} already exists"
 
     output_path.mkdir(exist_ok=True)
 
