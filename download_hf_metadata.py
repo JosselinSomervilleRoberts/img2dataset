@@ -24,6 +24,10 @@ def download_part(
     url = f"{base_url}{part_filename}"
     save_path = os.path.join(download_path, part_filename)
 
+    if os.path.exists(save_path):
+        print(f"Skipping {part_filename} as it already exists")
+        return
+
     headers = {
         "Authorization": f"Bearer {hf_token}",
     }
