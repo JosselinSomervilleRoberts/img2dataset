@@ -81,4 +81,4 @@ def cleanup_dir(directory):
 
 
 if __name__ == "__main__":
-    fire.Fire(download_and_process_metadata)    fire.Fire(download_and_process_metadata)
+    fire.Fire(download_and_process_metadata)
