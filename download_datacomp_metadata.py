@@ -1,3 +1,4 @@
+import os
 import shutil
 from pathlib import Path
 
@@ -62,6 +63,13 @@ def download_and_process_metadata(
 
     print(f"Node {node_id}: Responsible for shards {start_idx} to {end_idx - 1}")
     print(f"Node {node_id}: Will process {len(assigned_files)} files.")
+
+    # Delete all shards not assigned to this node
+    for file in metadata_files:
+        if file not in assigned_files:
+            # Using os.remove() instead of Path.unlink() to avoid FileNotFoundError
+            print(f"Node {node_id}: Deleting {file}")
+            os.remove(file)
 
     # Cleanup the cache directory
     cleanup_dir(cache_dir)
