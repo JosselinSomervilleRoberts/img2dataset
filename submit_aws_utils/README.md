@@ -1,7 +1,7 @@
 # Submit img2dataset jobs to AWS
 
 Make sure to replace all the secrets keys in the bash files first.
-Then request some `m6i.4xlarge` instances. They are the nmost cost efficient for our application.
+Then request some `r6i.4xlarge` instances. They are the nmost cost efficient for our application.
 We cannot scrape more than 1000 images/s per instance otherwise some rates on AWS are exceedeed and basically the network connextion is shutdown (for a few seconds). At the given rate, 16vCPUs is therefore the maximum that does not exceed this amount of requests.
 
 Copy from the dashboard all the domaine names and put them in a txt file. You can copy everything and then use this regex `\n^(?!.*\.com$).*` and replace every match by nothing. You will keep only the domain names.
@@ -77,14 +77,14 @@ python3 ssh_parallel_launch.py launch \
 ```bash
 python3 ssh_parallel_launch.py launch \
     --script setup_laion_2b_en.sh \
-    --ssh_key_path /Users/josselin/Downloads/joss-key-eu-north-1.pem \
+    --ssh_key_path /Users/josselin/Downloads/joss-key-us-east-2.pem \
     --ssh_hosts hosts_laion_2b_en.txt \
     --ssh_username ubuntu \
     --jobs_file launched_setup_laion_2b_en.json
 
 python3 ssh_parallel_launch.py launch \
     --script run_laion_2b_en.sh \
-    --ssh_key_path /Users/josselin/Downloads/joss-key-eu-north-1.pem \
+    --ssh_key_path /Users/josselin/Downloads/joss-key-us-east-2.pem \
     --ssh_hosts hosts_laion_2b_en.txt \
     --ssh_username ubuntu \
     --jobs_file launched_run_laion_2b_en.json
@@ -99,7 +99,7 @@ python3 ssh_parallel_launch.py fetch-logs \
 python3 ssh_parallel_launch.py fetch-logs \
     --output_path ./logs_srun_laion_2b_en \
     --jobs_file launched_run_laion_2b_en.json \
-    --ssh_key_path /Users/josselin/Downloads/joss-key-eu-north-1.pem
+    --ssh_key_path /Users/josselin/Downloads/joss-key-us-east-2.pem
 ```
 
 ## LAION2B-multi
@@ -135,14 +135,14 @@ python3 ssh_parallel_launch.py fetch-logs \
 ```bash
 python3 ssh_parallel_launch.py launch \
     --script setup_laion_1b_nolang.sh \
-    --ssh_key_path /Users/josselin/Downloads/joss-key-eu-west-3.pem \
+    --ssh_key_path /Users/josselin/Downloads/joss-key-us-east-1.pem \
     --ssh_hosts hosts_laion_1b_nolang.txt \
     --ssh_username ubuntu \
     --jobs_file launched_setup_laion_1b_nolang.json
 
 python3 ssh_parallel_launch.py launch \
     --script run_laion_1b_nolang.sh \
-    --ssh_key_path /Users/josselin/Downloads/joss-key-eu-west-3.pem \
+    --ssh_key_path /Users/josselin/Downloads/joss-key-us-east-1.pem \
     --ssh_hosts hosts_laion_1b_nolang.txt \
     --ssh_username ubuntu \
     --jobs_file launched_run_laion_1b_nolang.json
@@ -158,4 +158,34 @@ python3 ssh_parallel_launch.py fetch-logs \
     --output_path ./logs_srun_laion_1b_nolang \
     --jobs_file launched_run_laion_1b_nolang.json \
     --ssh_key_path /Users/josselin/Downloads/joss-key-eu-west-3.pem
+```
+
+
+## Datacomp-1B
+```bash
+python3 ssh_parallel_launch.py launch \
+    --script setup_datacomp_1b.sh \
+    --ssh_key_path /Users/josselin/Downloads/joss-key-us-east-1.pem \
+    --ssh_hosts hosts_datacomp_1b.txt \
+    --ssh_username ubuntu \
+    --jobs_file launched_setup_datacomp_1b.json
+
+python3 ssh_parallel_launch.py launch \
+    --script run_datacomp_1b.sh \
+    --ssh_key_path /Users/josselin/Downloads/joss-key-us-east-1.pem \
+    --ssh_hosts hosts_datacomp_1b.txt \
+    --ssh_username ubuntu \
+    --jobs_file launched_run_datacomp_1b.json
+```
+Gather logs:
+```bash
+python3 ssh_parallel_launch.py fetch-logs \
+    --output_path ./logs_setup_datacomp_1b \
+    --jobs_file launched_setup_datacomp_1b.json \
+    --ssh_key_path /Users/josselin/Downloads/joss-key-us-east-1.pem
+
+python3 ssh_parallel_launch.py fetch-logs \
+    --output_path ./logs_srun_datacomp_1b \
+    --jobs_file launched_run_datacomp_1b.json \
+    --ssh_key_path /Users/josselin/Downloads/joss-key-us-east-1.pem
 ```

@@ -1,9 +1,7 @@
 # Input values
-TOTAL_PARTS=128
+TOTAL_PARTS=2664
 
-# reLAION-1B-nolang
-# region: eu-west-3
-HF_DATASET_URL="https://huggingface.co/datasets/laion/laion1B-nolang-joined-translated-to-en/resolve/main/"
+# rdatacomp1b
 HF_UUID="9f691312-7d62-4868-beb9-ddd842daafae-c000"
 
 # Compute intermediate values
@@ -49,8 +47,8 @@ export WANDB_API_KEY=<YOUR-WANDB-API-KEY>
 mkdir -p ~/.aws
 cat <<EOF > ~/.aws/credentials
 [default]
-aws_access_key_id = <YOUR-S3-KEY>
-aws_secret_access_key = <YOUR-S3-SECRET-KEY>
+aws_access_key_id = CWVSYRPMUCDMPBTV
+aws_secret_access_key = cwocgzsElKdUyPgAcJMbFzDNHyRr4kDTXF5vfEnYNXK
 EOF
 mkdir -p ~/.config/fsspec
 cat <<EOF > ~/.config/fsspec/s3.json
@@ -112,13 +110,10 @@ echo "===================================\n"
 echo "======= Downloading metadata ======"
 cd ~/code/img2dataset
 git pull
-python3 download_hf_metadata.py \
+python3 download_datacomp_metadata.py \
     --download_path "/home/ubuntu/dataset/metadata" \
-    --uuid $HF_UUID \
-    --base_url $HF_DATASET_URL \
-    --start_part $START_PART \
-    --num_parts $NUM_PARTS \
-    --num_workers 16
+    --node_id $NODE_ID \
+    --num_nodes $NODE_COUNT
 echo "===================================\n"
 
 

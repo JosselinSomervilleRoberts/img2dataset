@@ -32,6 +32,7 @@ pip install -r requirements.txt
 pip install boto3
 pip install s3fs
 pip install opencv-python
+pip install huggingface_hub
 sudo apt update
 sudo apt install -y libgl1
 cd ~
